@@ -30,7 +30,10 @@ const devConfig = {
         exclude: path.resolve(__dirname, './node_modules/')
       },{
         test: /\.(jpe?g|png|gif|svg|json)$/i,
-        use: 'file-loader'
+        loader: 'file-loader',
+        options: {
+          name: '[path][name].[ext]'
+        }
       },
       {
         test: /\.(frag?g|vert)$/i,
@@ -39,7 +42,7 @@ const devConfig = {
       {
         test: /\.css?$/,
         use: ['style-loader', 'css-loader'],
-        exclude: path.resolve(__dirname, './node_modules/')
+        exclude: path.resolve(__dirname, './node_modules/'),
       }
     ]
   },
@@ -72,7 +75,10 @@ const prodConfig = {
         exclude: path.resolve(__dirname, './node_modules/')
       },{
         test: /\.(jpe?g|png|gif|svg|json)$/i,
-        use: 'file-loader'
+        loader: 'file-loader',
+        options: {
+          name: '[path][name].[ext]'
+        }
       },
       {
         test: /\.(frag?g|vert)$/i,
