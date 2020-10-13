@@ -1,0 +1,13 @@
+span[data-game] .moven {
+  user-select: none;
+}
+
+span[data-game] .movem {
+  user-select: none;
+  border-radius: 4px;
+}
+
+span[data-game] span.movem:hover {
+  background: #ED7272;
+  cursor: pointer;
+}

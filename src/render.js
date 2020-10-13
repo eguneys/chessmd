@@ -12,18 +12,17 @@ let { svg, renderMarker, renderShape } = SVG;
 
 let { div, tag, fTranslateAbs, updateChildren } = dom;
 
-export function renderFen(element, fen) {
+export function renderFen(color, pieces, shapes, bounds) {
 
-  let { color, pieces, shapes } = fen;
-
-  let bounds = element.getBoundingClientRect();
   let fPosToTranslate = fPosToTranslateAbs(bounds);
 
-  let board = tag('md-board', pieces.map(_ => {
+  let board = tag('md-board', Object.keys(pieces).map(key => {
+    let pos = key2pos(key);
+    let _ = pieces[key];
     let piece = tag(`piece.${_.color}.${_.role}`, [],
-                    fTranslateAbs(fPosToTranslate(_.pos)));
+                    fTranslateAbs(fPosToTranslate(pos)));
 
-    piece.mdKey = _.key;
+    piece.mdKey = key;
     
     return piece;
   }));
@@ -46,17 +45,14 @@ export function renderFen(element, fen) {
     )),
   ]);
 
-  element.appendChild(wrapper);
-
   return {
+    wrapper,
     board,
     svg: _svg
   };
 }
 
-export function updateSvg(els, fen) {
-
-  let { shapes, color } = fen;
+export function updateSvg(els, shapes, color) {
 
   let { board, svg } = els;
   let bounds = board.getBoundingClientRect();
@@ -78,16 +74,11 @@ export function updateSvg(els, fen) {
   });
 }
 
-export function updateBounds(els, fen) {
-  
-  let { color } = fen;
-  let { board } = els;
+export function updateBounds(asWhite, elBoard) {
 
-  let asWhite = color === 'white';
-
-  let bounds = board.getBoundingClientRect();
+  let bounds = elBoard.getBoundingClientRect();
   let fPosToTranslate = fPosToTranslateAbs(bounds);
-  updateChildren(board, _ => {
+  updateChildren(elBoard, _ => {
     fTranslateAbs(fPosToTranslate(key2pos(_.mdKey)), asWhite)(_);
   });
 

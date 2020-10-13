@@ -1,4 +1,4 @@
-## Chess MD - Chess Page Generator
+## Chess MD - Chess Blog Generator
 
 Generate static blogs for chess commentary. See [15 minute of French Defense Advanced]() for example.
 
@@ -34,6 +34,18 @@ Run this script within your html file to generate:
 ```
     
 For a local example, Run `yarn build` and see `dist/index.html`.
+
+### API
+
+Generate blog for `#myblog` with `Tetris(document.getElementById('myblog'), {});`
+
+Use `data-fen` attribute to embed a chess board.
+Use `data-shapes` attribute to add shapes:
+
+    <div data-fen="chess fen" data-shapes="shapes"></div>
+
+`shapes` is a series of, a single square or, two squares separated by a dash `square1-square2`; separated by spaces.
+
 
 ### Contribute
 
