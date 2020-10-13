@@ -109,6 +109,12 @@ export const Bishop = {
 };
 
 export const Rook = {
+  color(color) {
+    return {
+      role: 'rook',
+      color
+    };
+  },
   forsyth: 'R',
   roleString: 'rook',
   dirs: [_ => _.up(), _ => _.down(), _ => _.left(), _ => _.right()]
@@ -121,6 +127,12 @@ export const Queen = {
 };
 
 export const King = {
+  color(color) {
+    return {
+      role: 'king',
+      color
+    };
+  },
   forsyth: 'K',
   roleString: 'king',
   dirs: Queen.dirs

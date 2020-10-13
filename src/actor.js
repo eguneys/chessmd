@@ -8,6 +8,9 @@ import { Pos,
 
 import { KingSide, QueenSide } from './side';
 
+import Situation from './situation';
+import Move from './move';
+
 export default function Actor(piece, pos, board) {
   let color = piece.color;
 
@@ -25,26 +28,34 @@ export default function Actor(piece, pos, board) {
       function capture(horizontal) {
         let p = horizontal(next);
         if (!p) {
-          return p;
+          return null;
         }
         if (!board.pieces[p.key] ||
             board.pieces[p.key].color === color) {
           return null;
         }
-        return p;
+        let b = board.taking(pos, p);
+
+        return move(p, b, { capture: p });
       }
       let p2 = pawnDir()(fwd);
+      let m2 = [];
+
+      if (p2) {
+        let b = board.move(pos, p2);
+        m2 = move(p2, b);
+      }
 
       res.push([
-        fwd || [],
-        p2 || [],
+        fwd && forward(fwd) || [],
+        m2,
         capture(_ => _.left()) || [],
         capture(_ => _.right()) || [],
       ].flat());
       break;
     case 'king':
       res.push(shortRange(King.dirs));
-      res.push(castle);
+      res.push(castle());
       break;
     case 'knight':
       res.push(shortRange(Knight.dirs));
@@ -61,18 +72,16 @@ export default function Actor(piece, pos, board) {
     }
 
     return res.flatMap(_ =>
-      _.map(_ => ({
-        orig: pos,
-        dest: _,
-        castle: _.castle,
-        role: piece.role
-      }))
+      _
     );
   }
 
-  const castle = castleOn(KingSide)
+  const castle = () => 
+        castleOn(KingSide)
         .concat(castleOn(QueenSide));
   
+  this.castleOn = castleOn;
+
   function castleOn(side) {
     
     let kingPos = board.kingPosOf(color);
@@ -87,17 +96,28 @@ export default function Actor(piece, pos, board) {
     let newKingPos = Pos.atfr(side.castledKingFile, kingPos.rank);
     let newRookPos = Pos.atfr(side.castledRookFile, rookPos.rank);
 
-    return [{
-      castle: {
-        king: { [kingPos.key]: newKingPos },
-        rook: { [rookPos.key]: newRookPos },
-        side: side.name
-      }
-    }];
+    let castle = {
+      king: { [kingPos.key]: newKingPos },
+      rook: { [rookPos.key]: newRookPos },
+      side: side.name
+    };
+
+    let b1 = board.take(kingPos),
+        b2 = b1.take(rookPos),
+        b3 = b2.place(King.color(color), newKingPos),
+        b4 = b3.place(Rook.color(color), newRookPos),
+        b5 = b4;    
+
+    return move(kingPos, b5, { castle });
   }
 
   function forward(p) {
-    return p;
+    let _ = board.move(pos, p);
+
+    if (_) {
+      return move(p, _);
+    }
+    return null;
   }
 
   function pawnDir() {
@@ -109,8 +129,13 @@ export default function Actor(piece, pos, board) {
   }
 
   function shortRange(dirs) {
-    return dirs.flatMap(_ => _(pos)).flatMap(to => {
-      return to || [];
+    return dirs.flatMap(_ => _(pos) || []).flatMap(to => {
+      let _ = board.move(pos, to);
+      if (_) {
+        return [move(to, _)];
+      } else {
+        return [];
+      }
     });
   }
 
@@ -120,7 +145,10 @@ export default function Actor(piece, pos, board) {
     function addAll(p, dir) {
       let to;
       if ((to = dir(p))) {
-        res.push(to);
+        let _ = board.move(pos, to);
+        if (_) { 
+          res.push(move(to, _));
+        }
         addAll(to, dir);
       }
     }
@@ -129,4 +157,33 @@ export default function Actor(piece, pos, board) {
 
     return res;
   };
+
+
+  function move(dest,
+                after, extra) {
+
+    let capture,
+        promotion,
+        castle,
+        enpassant;
+
+    if (extra) {
+      capture = extra.capture;
+      castle = extra.castle;
+      promotion = extra.promotion;
+      enpassant = extra.enpassant;
+    }
+    
+    return new Move({
+      piece,
+      orig: pos,
+      dest,
+      situationBefore: new Situation(board, piece.color),
+      after,
+      capture,
+      castle,
+      promotion,
+      enpassant
+    });
+  }
 }

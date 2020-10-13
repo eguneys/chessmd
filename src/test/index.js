@@ -5,7 +5,7 @@ import sanTest from './san';
 export default function() {
 
   // utilTest();
-  // chessTest();
+  chessTest();
   // sanTest();
   
 }

@@ -1,4 +1,4 @@
-import { valid, invalid } from './valid';
+import { valid, invalid, toValid } from './valid';
 import { objForeach } from './outil';
 import { Pos } from './pos';
 import Actor from './actor';
@@ -24,7 +24,6 @@ export function Std(
   this.move = (situation) => {
 
     let res = null;
-
     objForeach(situation.board.pieces, (pos, piece) => {
       if (res) {
         return;
@@ -46,6 +45,28 @@ export function Std(
 
 }
 
-export function Castle(side) {
+export function Castle(side, san) {
+  this.san = san;
   this.side = side;
+
+
+  this.move = situation => {
+
+    let kingPos = toValid(situation.board.kingPosOf(situation.color), "No king found");
+
+    if (kingPos.invalid) {
+      return kingPos;
+    }
+
+    let actor = toValid(situation.board.actorAt(kingPos.value.key), "No Actor found");
+
+    if (actor.invalid) {
+      return actor;
+    }
+
+    let move = toValid(actor.value.castleOn(side), "Cannot castle");
+
+    return move;
+  };
+
 }

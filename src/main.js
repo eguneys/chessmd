@@ -36,7 +36,9 @@ export function Ply(ctx, el) {
 
   let lastMove = history.plyMove(ply);
 
-  let pieces = {};
+  let situationAfter = lastMove.value.situationAfter();
+
+  let pieces = situationAfter.board.pieces;
 
   let bounds = el.getBoundingClientRect();
 
@@ -123,7 +125,7 @@ export function History(ctx) {
       situation = null;
       return { ply, value: invalid };
     }
-    situation = value.after;
+    situation = value.situationAfter();
     return {
       ply,
       value

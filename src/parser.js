@@ -3,15 +3,15 @@ import { Castle, Std } from './san';
 import { KingSide, QueenSide } from './side';
 import { Pos, Role, Pawn } from './pos';
 
-export default function parseSan(san) {
+export function parseSan(san) {
 
   const moveRegex = /^(N|B|R|Q|K|)([a-h]?)([1-8]?)(x?)([a-h][1-8])(=?[NBQR]?)(\+?)(\#?)$/;
   
   if (san === 'O-O' || san === 'o-o' || san === '0-0') {
-    return valid(new Castle(KingSide));
+    return valid(new Castle(KingSide, san));
   }
   if (san === 'O-O-O' || san === 'o-o-o' || san === '0-0-0') {
-    return valid(new Castle(QueenSide));
+    return valid(new Castle(QueenSide, san));
   }
 
   let match = san.match(moveRegex);

@@ -1,3 +1,12 @@
+export function objCopy(obj) {
+  let o2 = {};
+
+  for (let key in obj) {
+    o2[key] = obj[key];
+  }
+  return o2;
+}
+
 export function partition(list, f) {
   let a = [], b = [];
 

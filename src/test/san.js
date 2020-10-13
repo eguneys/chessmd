@@ -1,4 +1,4 @@
-import parseSan from '../parser';
+import { parseSan } from '../parser';
 import { KingSide, QueenSide } from '../side';
 
 export default function() {
