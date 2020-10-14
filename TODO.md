@@ -1,6 +1,6 @@
-- [ ] Variation Line
+- [x] Variation Line
+- [x] Last move highlight
 - [ ] Inline shape
 - [ ] Evaluation Gauge
 - [ ] Move Annotations
-- [ ] Last move highlight
 - [ ] Defer move generation

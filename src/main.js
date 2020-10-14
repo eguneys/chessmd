@@ -20,10 +20,14 @@ export function Ply(ctx, el) {
   let shapes = util.readShapes(el.dataset.shapes);
   let ply = parseInt(el.dataset.ply);
   let pieces = {};
+  let lastMove = [];
 
-  let situation = history.situationFor(game, ply);
-  if (situation) {
+  let move = history.moveFor(game, ply);
+  if (move) {
+    let situation = move.value.situationAfter();
     pieces = situation.board.pieces;
+    lastMove.push(move.value.orig.key);
+    lastMove.push(move.value.dest.key);
   }
 
   let bounds = el.getBoundingClientRect();
@@ -31,7 +35,8 @@ export function Ply(ctx, el) {
   let els;
 
   this.wrap = () => {
-    els = renderFen(color, pieces, shapes, bounds);
+
+    els = renderFen(color, pieces, shapes, bounds, lastMove);
 
     el.appendChild(els.wrapper);
 
@@ -116,12 +121,9 @@ export function History(ctx) {
   };
 
   this.situationFor = situationFor;
+  this.moveFor = moveFor;
 
-  function situationFor(base, ply) {
-    if (ply === 0) {
-      return Situation.apply();
-    }
-
+  function moveFor(base, ply) {
     let oMove = movesByGame[base]
         .find(_ => _.ply === ply);
 
@@ -129,6 +131,15 @@ export function History(ctx) {
       console.warn(`No move found for ${base} ${ply}`);
       return null;
     }
+    return oMove;
+  }
+
+  function situationFor(base, ply) {
+    if (ply === 0) {
+      return Situation.apply();
+    }
+
+    let oMove = moveFor(base, ply);
 
     return oMove.value.situationAfter();
   }

@@ -72,6 +72,20 @@ md-board {
   height: 100%;
 }
 
+md-board square {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12.5%;
+  height: 12.5%;
+  pointer-events: none;
+}
+
+md-board square.last-move {
+  will-change: transform;
+  background-color: rgba(155, 199, 0, 0.41);
+}
+
 md-board piece {
   position: absolute;
   top: 0;

@@ -29,20 +29,29 @@ export function renderLine(line) {
       ]);
 }
 
-export function renderFen(color, pieces, shapes, bounds) {
+export function renderFen(color, pieces, shapes, bounds, lastMove) {
 
   let fPosToTranslate = fPosToTranslateAbs(bounds);
 
-  let board = tag('md-board', Object.keys(pieces).map(key => {
-    let pos = key2pos(key);
-    let _ = pieces[key];
-    let piece = tag(`piece.${_.color}.${_.role}`, [],
-                    fTranslateAbs(fPosToTranslate(pos)));
+  let board = tag('md-board', [
+    ...lastMove.map(key => {
+      let pos = key2pos(key);
+      let move = tag(`square.last-move`, [],
+                     fTranslateAbs(fPosToTranslate(pos)));
+      move.mdKey = key;
+      return move;
+    }),
+    ...Object.keys(pieces).map(key => {
+      let pos = key2pos(key);
+      let _ = pieces[key];
+      let piece = tag(`piece.${_.color}.${_.role}`, [],
+                      fTranslateAbs(fPosToTranslate(pos)));
 
-    piece.mdKey = key;
-    
-    return piece;
-  }));
+      piece.mdKey = key;
+      
+      return piece;
+    })
+  ]);
 
   let _svg = svg('svg', [
     svg('defs', [
