@@ -39,3 +39,11 @@ export const fTranslateAbs = (pos) => {
     el.style.transform = `translate(${pos[0]}px,${pos[1]}px)`;
   };
 };
+
+export const fAddClass = (klass) => {
+  return el => {
+    klass.split('.').forEach(_ => {
+      el.classList.add(_);
+    });
+  };
+};

@@ -12,6 +12,23 @@ let { svg, renderMarker, renderShape } = SVG;
 
 let { div, tag, fTranslateAbs, updateChildren } = dom;
 
+export function renderLine(line) {
+  return line.flatMap(([mwhite, mblack]) => 
+    mwhite && mblack ?
+      [
+        tag('strong.moven', (mwhite.ply + 1) / 2 + '. '),
+        tag('span.movem', mwhite.move.san + ' '),
+        tag('span.movem', mblack.move.san + ' '),
+      ]
+      : mwhite ? [
+        tag('strong.moven', (mwhite.ply + 1) / 2 + '. '),
+        tag('span.movem', mwhite.move.san + ' ')
+      ] : [
+        tag('strong.moven', mblack.ply / 2 + '... '),
+        tag('span.movem', mblack.move.san + ' '),    
+      ]);
+}
+
 export function renderFen(color, pieces, shapes, bounds) {
 
   let fPosToTranslate = fPosToTranslateAbs(bounds);

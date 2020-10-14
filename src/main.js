@@ -1,23 +1,9 @@
+import { objFilter, objForeach, objMap, groupToMap } from './outil';
 import * as util from './util';
-import * as dom from './dom';
-import { findMove } from './chess';
 import { parseLine } from './parser';
 import Situation from './situation';
-import { renderFen, updateBounds, updateSvg } from './render';
-
-let { tag } = dom;
-
-function render(ctx) {
-
-  for (let elply of ctx.plys) {
-    let elements = renderPly(elply, ctx.allMoves[elply.ply]);
-    listen(elply.el, () => {
-      updateBounds(elements, elply);
-      updateSvg(elements, elply);
-    });    
-  }
-
-}
+import { renderLine, renderFen, updateBounds, updateSvg } from './render';
+import { fAddClass } from './dom';
 
 function listen(element, fResize) {
   const observer = new window.ResizeObserver(fResize);
@@ -29,20 +15,18 @@ export function Ply(ctx, el) {
   let { history } = ctx;
 
   this.el = el;
-  let game = el.dataset.game;
+  let game = el.dataset.game || 'main';
   let color = el.dataset.color;
   let shapes = util.readShapes(el.dataset.shapes);
   let ply = parseInt(el.dataset.ply);
+  let pieces = {};
 
-  let lastMove = history.plyMove(ply);
-
-  let situationAfter = lastMove.value.situationAfter();
-
-  let pieces = situationAfter.board.pieces;
+  let situation = history.situationFor(game, ply);
+  if (situation) {
+    pieces = situation.board.pieces;
+  }
 
   let bounds = el.getBoundingClientRect();
-
-  let asWhite = color === 'white';
 
   let els;
 
@@ -52,7 +36,7 @@ export function Ply(ctx, el) {
     el.appendChild(els.wrapper);
 
     listen(el, () => {
-      updateBounds(asWhite, els.board);
+      updateBounds(util.asWhite(color), els.board);
       updateSvg(els, shapes, color);
     });
   };
@@ -60,49 +44,30 @@ export function Ply(ctx, el) {
 
 export function MoveLine(ctx, el) {
 
+  let sGame = el.dataset.game || 'main initial';
   let sLine = el.dataset.line;
+
+  let _game = sGame.split(' ');
+  if (_game.length === 1) {
+    _game.push('main');
+  }
+  this.game = _game[0];
+  this.base = _game[1];
 
   let line = parseLine(sLine);
   this.flat = line.flat()
     .flatMap(_ => _ ? [_]:[]);
 
-  let elPly;
-  this.elPly = () => {
-    if (!elPly) {
-      elPly = findElPly();
-    }
-    return elPly;
-  };
-
-  function findElPly() {
-    let elPly = el.nextSibling;
-    
-    while (elPly) {
-      if (ctx.plys.find(_ => _.el === elPly)) {
-        break;
-      }
-      elPly = elPly.nextSibling;
-    }
-    return elPly;
-  }
-
   this.wrap = () => {
-    let children = line.flatMap(([mwhite, mblack]) => 
-      mwhite && mblack ?
-        [
-          tag('strong.moven', (mwhite.ply + 1) / 2 + '. '),
-          tag('span.movem', mwhite.move.san + ' '),
-          tag('span.movem', mblack.move.san + ' '),
-        ]
-        : mwhite ? [
-          tag('strong.moven', (mwhite.ply + 1) / 2 + '. '),
-          tag('span.movem', mwhite.move.san + ' ')
-        ] : [
-          tag('strong.moven', mblack.ply / 2 + '... '),
-          tag('span.movem', mblack.move.san + ' '),    
-        ]);
+    let { history } = ctx;
+    let depth = history.lineDepthFor(this.game);
+
+    let fStyle = fAddClass(`depth${depth}`);
+
+    let children = renderLine(line);
 
     children.forEach(_ => el.appendChild(_));
+    fStyle(el);
   };
 
 };
@@ -111,29 +76,80 @@ export function History(ctx) {
 
   let { lines } = ctx;
 
-  let moves = lines.flatMap(_ => _.flat)
-      .sort((a, b) => a.ply < b.ply ? -1 : a.ply === b.ply ? 0 : 1);
+  let linesByGame = groupToMap(lines, line => {
+    return { [line.game]: line };
+  });
 
-  let situation = Situation.apply();
-  moves = moves.map(({ ply, move }) => {
-    if (!situation) {
-      return { ply, value: null };
-    }
-    let { invalid, value } = move.move(situation);
-    if (invalid) {
-      console.warn(invalid);
-      situation = null;
-      return { ply, value: invalid };
-    }
-    situation = value.situationAfter();
-    return {
-      ply,
-      value
-    };
-  }).filter(_ => _);
+  let movesByGame = {};
+  let lineDepthByGame = {};
 
-  this.plyMove = ply => {
-    return moves.find(_ => _.ply === ply);
+  function playVariations() {
+    function step(curr, depth) {
+      objForeach(playVariationsHelper(curr), (_, v) => {
+        movesByGame[_] = v;
+        lineDepthByGame[_] = depth;
+        step(_, depth + 1);
+      });
+    }
+    step('initial', 0);
+  }
+
+  playVariations();
+
+  function playVariationsHelper(base) {
+    let variationLines = objFilter(linesByGame, (_, lines) => 
+      lines[0].base === base);
+
+    let variationMoves = objMap(variationLines, (_, lines) => ({
+      [_]: lines.flatMap(_ => _.flat)
+        .sort((a, b) => a.ply < b.ply ? -1 : a.ply === b.ply ? 0 : 1)
+    }));
+
+    return objMap(variationMoves, (_, moves) => {
+      let situation = situationFor(base, moves[0].ply - 1);
+      return { [_]:  playMoves(moves, situation) };
+    });
+  }
+
+  this.lineDepthFor = (base) => {
+    return lineDepthByGame[base];
+  };
+
+  this.situationFor = situationFor;
+
+  function situationFor(base, ply) {
+    if (ply === 0) {
+      return Situation.apply();
+    }
+
+    let oMove = movesByGame[base]
+        .find(_ => _.ply === ply);
+
+    if (!oMove) {
+      console.warn(`No move found for ${base} ${ply}`);
+      return null;
+    }
+
+    return oMove.value.situationAfter();
+  }
+
+  function playMoves(moves, situation) {
+    return moves.map(({ ply, move }) => {
+      if (!situation) {
+        return { ply, value: null };
+      }
+      let { invalid, value } = move.move(situation);
+      if (invalid) {
+        console.warn(invalid);
+        situation = null;
+        return { ply, value: invalid };
+      }
+      situation = value.situationAfter();
+      return {
+        ply,
+        value
+      };
+    }).filter(_ => _);
   };
   
 }

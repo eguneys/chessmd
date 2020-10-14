@@ -28,7 +28,10 @@ export function Std(
       if (res) {
         return;
       }
-      if (piece.color === situation.color && piece.role === role.roleString) {
+      if (piece.color === situation.color &&
+          piece.role === role.roleString &&
+          compare(file, Pos.fromKey(pos).file.char) &&
+          compare(rank, Pos.fromKey(pos).rank.char)) {
         let a = new Actor(piece, Pos.fromKey(pos), situation.board);
         res = a.pseudoValidMoves().find(m => 
           m.dest.key === dest.key
@@ -42,6 +45,10 @@ export function Std(
 
     return valid(res);
   };
+
+  function compare(a, b) {
+    return !a || a === b;
+  }
 
 }
 
@@ -64,7 +71,7 @@ export function Castle(side, san) {
       return actor;
     }
 
-    let move = toValid(actor.value.castleOn(side), "Cannot castle");
+    let move = toValid(actor.value.castleOn(side)[0], "Cannot castle");
 
     return move;
   };

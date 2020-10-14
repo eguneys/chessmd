@@ -1,2 +1,6 @@
-[ ] Defer move generation
-[ ] Inline shapes
+- [ ] Variation Line
+- [ ] Inline shape
+- [ ] Evaluation Gauge
+- [ ] Move Annotations
+- [ ] Last move highlight
+- [ ] Defer move generation

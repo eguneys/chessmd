@@ -30,3 +30,29 @@ export function objMap(obj, f) {
 export function objForeach(obj, f) {
   Object.keys(obj).forEach(key => f(key, obj[key]));
 }
+
+export function objFilter(obj, f) {
+  let res = {};
+
+  for (let key in obj) {
+    if (f(key, obj[key])) {
+      res[key] = obj[key];
+    }
+  }
+  return res;
+}
+
+export function groupToMap(list, f) {
+  let res = {};
+
+  list.forEach(item => {
+    let u = f(item);
+    let _ = Object.keys(u)[0];
+    if (!res[_]) {
+      res[_] = [];
+    }
+
+    res[_].push(u[_]);
+  });
+  return res;
+}

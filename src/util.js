@@ -13,6 +13,9 @@ export const key2pos = k => [k.charCodeAt(0) - 97, k.charCodeAt(1) - 49];
 export const black = 'black',
       white = 'white';
 
+export function asWhite(color) {
+  return color === white;
+}
 
 export function flip(color) {
   return color === white ? black : white;
