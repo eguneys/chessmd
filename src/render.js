@@ -10,23 +10,35 @@ let { ranks,
 
 let { svg, renderMarker, renderShape } = SVG;
 
-let { div, tag, fTranslateAbs, updateChildren } = dom;
+let { div, tag, fTranslateAbs, fListen, updateChildren } = dom;
 
-export function renderLine(line) {
-  return line.flatMap(([mwhite, mblack]) => 
-    mwhite && mblack ?
+export function renderLine(line, fHover, fOut) {
+  let onHover = ply => {
+    return _ => {
+      fListen('mouseover', el => fHover(ply, el))(_);
+      fListen('mouseout', fOut)(_);
+    };
+  };
+
+  return line.flatMap(([mwhite, mblack]) => {
+    let onHoverWhite = mwhite && onHover(mwhite.ply),
+        onHoverBlack = mblack && onHover(mblack.ply);
+
+    return mwhite && mblack ?
       [
         tag('strong.moven', (mwhite.ply + 1) / 2 + '. '),
-        tag('span.movem', mwhite.move.san + ' '),
-        tag('span.movem', mblack.move.san + ' '),
+        tag('span.movem', mwhite.move.san + ' ', onHoverWhite),
+        tag('span.movem', mblack.move.san + ' ', onHoverBlack),
       ]
       : mwhite ? [
         tag('strong.moven', (mwhite.ply + 1) / 2 + '. '),
-        tag('span.movem', mwhite.move.san + ' ')
+        tag('span.movem', mwhite.move.san + ' ', onHoverWhite)
       ] : [
         tag('strong.moven', mblack.ply / 2 + '... '),
-        tag('span.movem', mblack.move.san + ' '),    
-      ]);
+        tag('span.movem', mblack.move.san + ' ', onHoverBlack),
+      ];
+  });
+
 }
 
 export function renderFen(color, pieces, shapes, bounds, lastMove) {

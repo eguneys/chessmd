@@ -23,7 +23,7 @@ export function tag(nameklass, children = [], fStyle) {
   return el;
 }
 
-export const div = (klass, children) => tag('div' + klass, children);
+export const div = (klass, children, fStyle) => tag('div' + klass, children, fStyle);
 
 export const updateChildren = (el, fupdate) => {
   el = el.firstChild;
@@ -46,4 +46,24 @@ export const fAddClass = (klass) => {
       el.classList.add(_);
     });
   };
+};
+
+export const fListen = (event, f) => {
+  return el => {
+    el.addEventListener(event, () => {
+      f(el);
+    });
+  };
+};
+
+export const fHide = el => {
+  if (!el.classList.contains('hidden')) {
+    el.classList.add('hidden');
+  }
+};
+
+export const fShow = el => {
+  if (el.classList.contains('hidden')) {
+    el.classList.remove('hidden');
+  }
 };

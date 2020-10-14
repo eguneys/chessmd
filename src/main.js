@@ -3,36 +3,86 @@ import * as util from './util';
 import { parseLine } from './parser';
 import Situation from './situation';
 import { renderLine, renderFen, updateBounds, updateSvg } from './render';
-import { fAddClass } from './dom';
+import { fTranslateAbs, fAddClass, fHide, fShow, div } from './dom';
 
-function listen(element, fResize) {
-  const observer = new window.ResizeObserver(fResize);
-  observer.observe(element);
+function isInViewport(bounds) {
+  return bounds.top >= 0 &&
+    bounds.left >= 0 &&
+    bounds.bottom <= window.innerHeight &&
+    bounds.right <= window.innerWidth;
 }
 
-export function Ply(ctx, el) {
+function listenEndScroll(onEndScroll) {
+  let isScrolling;
+  document.addEventListener('scroll', function(event) {
+    clearTimeout(isScrolling);
+    isScrolling = setTimeout(onEndScroll, 60);
+  }, false);
+}
 
-  let { history } = ctx;
+function listenResize(element, fResize) {
+  const observer = new window.ResizeObserver(fResize);
+  observer.observe(element);
+  return () => {
+    observer.unobserve(element);
+  };
+}
+
+export function Ply(play, ctx, el) {
+
+  let { history } = play;
+
+  let game,
+      color,
+      shapes,
+      ply,
+      pieces,
+      lastMove,
+      move,
+      bounds;
 
   this.el = el;
-  let game = el.dataset.game || 'main';
-  let color = el.dataset.color;
-  let shapes = util.readShapes(el.dataset.shapes);
-  let ply = parseInt(el.dataset.ply);
-  let pieces = {};
-  let lastMove = [];
+  this.bounds = () => bounds;
 
-  let move = history.moveFor(game, ply);
-  if (move) {
-    let situation = move.value.situationAfter();
-    pieces = situation.board.pieces;
-    lastMove.push(move.value.orig.key);
-    lastMove.push(move.value.dest.key);
-  }
+  this.init = (data) => {
+    game = data.game || 'main';
+    color = data.color;
+    shapes = util.readShapes(data.shapes);
+    ply = parseInt(data.ply);
+    pieces = {};
+    lastMove = [];
 
-  let bounds = el.getBoundingClientRect();
+    move = history.moveFor(game, ply);
+    if (move) {
+      let situation = move.value.situationAfter();
+      pieces = situation.board.pieces;
+      lastMove.push(move.value.orig.key);
+      lastMove.push(move.value.dest.key);
+    }
+
+    color = color || history.colorFor(game);
+
+    bounds = el.getBoundingClientRect();
+  };
 
   let els;
+
+  this.syncVisible = () => {
+    bounds = el.getBoundingClientRect();
+    this.isInViewport = isInViewport(bounds);
+  };
+
+  let unlisten;
+  this.render = () => {
+    if (!unlisten) {
+    } else {
+      unlisten();
+
+      el.removeChild(els.wrapper);
+    }
+    this.wrap();
+  };
+
 
   this.wrap = () => {
 
@@ -40,17 +90,18 @@ export function Ply(ctx, el) {
 
     el.appendChild(els.wrapper);
 
-    listen(el, () => {
+    unlisten = listenResize(el, () => {
       updateBounds(util.asWhite(color), els.board);
       updateSvg(els, shapes, color);
     });
   };
 };
 
-export function MoveLine(ctx, el) {
+export function MoveLine(play, ctx, el) {
 
   let sGame = el.dataset.game || 'main initial';
   let sLine = el.dataset.line;
+  let sColor = el.dataset.color;
 
   let _game = sGame.split(' ');
   if (_game.length === 1) {
@@ -58,18 +109,27 @@ export function MoveLine(ctx, el) {
   }
   this.game = _game[0];
   this.base = _game[1];
+  this.color = sColor;
 
   let line = parseLine(sLine);
   this.flat = line.flat()
     .flatMap(_ => _ ? [_]:[]);
 
+  let fHover = (ply, el) => {
+    play.show(this.game, ply, el);
+  };
+
+  let fOut = () => {
+    play.hide();
+  };
+
   this.wrap = () => {
-    let { history } = ctx;
-    let depth = history.lineDepthFor(this.game);
+
+    let depth = play.history.lineDepthFor(this.game);
 
     let fStyle = fAddClass(`depth${depth}`);
 
-    let children = renderLine(line);
+    let children = renderLine(line, fHover, fOut);
 
     children.forEach(_ => el.appendChild(_));
     fStyle(el);
@@ -77,26 +137,48 @@ export function MoveLine(ctx, el) {
 
 };
 
-export function History(ctx) {
+export function History(play, ctx) {
 
-  let { lines } = ctx;
+  let { lines } = play;
 
   let linesByGame = groupToMap(lines, line => {
     return { [line.game]: line };
   });
 
+  let allGames = Object.keys(linesByGame);
+
   let movesByGame = {};
   let lineDepthByGame = {};
+  let colorByGame = {};
+
+  function findColors() {
+    allGames.forEach(game => {
+      colorByGame[game] = findColorByGameHelper(game);
+    });
+  }
+
+  findColors();
+
+  function findColorByGameHelper(game) {
+
+    if (game === 'initial' || !linesByGame[game]) {
+      return 'white';
+    }
+
+    let line = linesByGame[game][0];
+
+    return line.color || findColorByGameHelper(line.base);
+  }
 
   function playVariations() {
-    function step(curr, depth) {
+    function step(curr, depth, color) {
       objForeach(playVariationsHelper(curr), (_, v) => {
         movesByGame[_] = v;
         lineDepthByGame[_] = depth;
         step(_, depth + 1);
       });
     }
-    step('initial', 0);
+    step('initial', 0, 'white');
   }
 
   playVariations();
@@ -118,6 +200,10 @@ export function History(ctx) {
 
   this.lineDepthFor = (base) => {
     return lineDepthByGame[base];
+  };
+
+  this.colorFor = (base) => {
+    return colorByGame[base];
   };
 
   this.situationFor = situationFor;
@@ -165,30 +251,106 @@ export function History(ctx) {
   
 }
 
-export const makePlys = (ctx, el) => {
+export const makePlys = (play, ctx) => {
+  let { element } = ctx;
+
   let res = [];
-  for (let _ of el.querySelectorAll('[data-ply]')) {
-    res.push(new Ply(ctx, _));
+  for (let _ of element.querySelectorAll('[data-ply]')) {
+    let ply = new Ply(play, ctx, _);
+    ply.init({
+      game: _.dataset.game,
+      color: _.dataset.color,
+      shapes: _.dataset.shapes,
+      ply: _.dataset.ply
+    });
+    res.push(ply);
   }
   return res;
 };
 
-export const makeMoveLines = (ctx, el) => {
+export const makeMoveLines = (play, ctx) => {
+  let { element } = ctx;
   let res = [];
-  for (let _ of el.querySelectorAll('[data-line]')) {
-    res.push(new MoveLine(ctx, _));
+  for (let _ of element.querySelectorAll('[data-line]')) {
+    res.push(new MoveLine(play, ctx, _));
   }
   return res;
 };
+
+export function Play(ctx) {
+
+  let { element } = ctx;
+
+  let lines = this.lines = makeMoveLines(this, ctx);
+  let history = this.history = new History(this, ctx);
+  let plys = this.plys = makePlys(this, ctx);
+
+  let hoverEl = div('.hover-ply', [], fHide);
+  let hoverPly = new Ply(this, ctx, hoverEl);
+
+  this.wrap = () => {
+
+    element.appendChild(hoverEl);
+    
+    lines.forEach(_ => _.wrap());
+    plys.forEach(_ => _.wrap());
+  };
+
+  let visiblePly = this.visiblePly = () => {
+    return plys.filter(_ => _.isInViewport)[0];
+  };
+
+  function findVisiblePly() {
+    plys.forEach(_ => _.syncVisible());
+  }
+
+  this.listen = () => {
+    listenEndScroll(findVisiblePly);
+    findVisiblePly();
+  };
+
+  this.hide = () => {
+    fHide(hoverEl);
+  };
+
+  this.show = (game, ply, elN) => {
+
+    let vp = visiblePly();
+    let posToTranslate = [window.pageXOffset, window.pageYOffset];
+    if (vp) {
+      posToTranslate[0] += vp.bounds().left;
+      posToTranslate[1] += vp.bounds().top;
+    } else {
+      let { clientWidth } = ctx.element;
+      let offBounds = elN.getBoundingClientRect();
+      let helBounds = hoverEl.getBoundingClientRect();
+
+      if (offBounds.left < clientWidth / 2) {
+        posToTranslate[0] += clientWidth - helBounds.width - 4;
+      }
+
+    }
+
+    fTranslateAbs(posToTranslate)(hoverEl);
+    
+    hoverPly.init({
+      game,
+      ply
+    });
+    hoverPly.render();
+    fShow(hoverEl);
+  };
+}
 
 export function app(element, options) {
+  
+  let ctx = {
+    element
+  };
 
-  let ctx = {};
+  let play = new Play(ctx);
 
-  ctx.lines = makeMoveLines(ctx, element);
-  ctx.history = new History(ctx);
-  ctx.plys = makePlys(ctx, element);
+  play.wrap();
+  play.listen();
 
-  ctx.lines.forEach(_ => _.wrap());
-  ctx.plys.forEach(_ => _.wrap());
 }

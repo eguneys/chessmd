@@ -1,5 +1,6 @@
 - [x] Variation Line
 - [x] Last move highlight
+- [x] Notation Visualizer
 - [ ] Inline shape
 - [ ] Evaluation Gauge
 - [ ] Move Annotations
