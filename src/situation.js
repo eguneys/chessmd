@@ -5,7 +5,7 @@ export default function Situation(board, color) {
 
   this.board = board;
   this.color = color;
-  
+      
   let actors = board.actorsOf(color);
 }
 

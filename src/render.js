@@ -15,8 +15,11 @@ let { div, tag, fTranslateAbs, fListen, updateChildren } = dom;
 export function renderLine(line, fHover, fOut) {
   let onHover = ply => {
     return _ => {
-      fListen('mouseover', el => fHover(ply, el))(_);
-      fListen('mouseout', fOut)(_);
+      ['touchstart', 'mouseover'].forEach(event =>
+        fListen(event, el => fHover(ply, el))(_)
+      );
+      ['touchend', 'mouseout'].forEach(event =>
+        fListen(event, fOut)(_));
     };
   };
 
