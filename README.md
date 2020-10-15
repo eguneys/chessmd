@@ -1,6 +1,6 @@
 ## Chess MD - Chess Blog Generator
 
-Generate static blogs for chess commentary. See [15 minute of French Defense Advanced]() for example.
+Generate static blogs for chess commentary. See [15 minute of French Defense Advanced](https://eguneys.github.io/chess/rb2.html) for example.
 
 Chess MD, provides visual representation of a chess board, with shapes. It replaces given static html data with visually enriched static html.
 
