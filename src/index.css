@@ -45,14 +45,18 @@ md-wrap coords coord {
   flex: 1 1 auto;
 }
 
-.files coord:nth-child(2n+1),
-.ranks coord:nth-child(2n) {
-  color: var(--md-coord-color-black);
+.white.files coord:nth-child(2n+1),
+.white.ranks coord:nth-child(2n),
+.black.files coord:nth-child(2n),
+.black.ranks coord:nth-child(2n+1) {
+  color: var(--md-coord-color-white);
 }
 
-.files coord:nth-child(2n),
-.ranks coord:nth-child(2n+1) {
-  color: var(--md-coord-color-white);
+.white.files coord:nth-child(2n),
+.white.ranks coord:nth-child(2n+1),
+.black.files coord:nth-child(2n+1),
+.black.ranks coord:nth-child(2n) {
+  color: var(--md-coord-color-black);
 }
 
 @media (min-width: 320px) {

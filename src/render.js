@@ -46,13 +46,14 @@ export function renderLine(line, fHover, fOut) {
 
 export function renderFen(color, pieces, shapes, bounds, lastMove) {
 
+  let asWhite = util.asWhite(color);
   let fPosToTranslate = fPosToTranslateAbs(bounds);
 
   let board = tag('md-board', [
     ...lastMove.map(key => {
       let pos = key2pos(key);
       let move = tag(`square.last-move`, [],
-                     fTranslateAbs(fPosToTranslate(pos)));
+                     fTranslateAbs(fPosToTranslate(pos, asWhite)));
       move.mdKey = key;
       return move;
     }),
@@ -60,7 +61,7 @@ export function renderFen(color, pieces, shapes, bounds, lastMove) {
       let pos = key2pos(key);
       let _ = pieces[key];
       let piece = tag(`piece.${_.color}.${_.role}`, [],
-                      fTranslateAbs(fPosToTranslate(pos)));
+                      fTranslateAbs(fPosToTranslate(pos, asWhite)));
 
       piece.mdKey = key;
       
@@ -116,11 +117,10 @@ export function updateSvg(els, shapes, color) {
 }
 
 export function updateBounds(asWhite, elBoard) {
-
   let bounds = elBoard.getBoundingClientRect();
   let fPosToTranslate = fPosToTranslateAbs(bounds);
   updateChildren(elBoard, _ => {
-    fTranslateAbs(fPosToTranslate(key2pos(_.mdKey)), asWhite)(_);
+    fTranslateAbs(fPosToTranslate(key2pos(_.mdKey), asWhite))(_);
   });
 
 }

@@ -32,11 +32,19 @@
          background: #202020;
      }
 
-     h1 {
+     h1, h2 {
          font-family: 'Roboto' sans-serif;
          color: pink;
          margin: 0;
+     }
+
+     h1 {
          font-size: 2.2em;
+     }
+
+     h2 {
+         margin: 1em 0;
+         font-size: 1.4em;
      }
 
      p {
@@ -44,12 +52,18 @@
      }
 
 
-     [data-fen] {
+     [data-fen],
+     [data-ply],
+     .hover-ply {
+         width: 60vmin;
+         height: 0;
+         padding-bottom: 60vmin;
+     }
+
+     [data-fen],
+     [data-ply] {
          position: relative;
          margin-left: 1em;
-         width: 60%;
-         height: 0;
-         padding-bottom: 60%;
      }
 
     </style>
@@ -57,18 +71,79 @@
 <body>
   <section id="chessmd">
 
-    <h1> 15 minute of French Defense Advanced </h1>
+       <h1> 15 minute of French Defense Advanced </h1>
 
-    <p>
-      &nbsp;&nbsp;I was playing french as black, white choose the advanced variation.
+       <p>
+       &nbsp;&nbsp;I played french as black, white choose the advanced variation. <span data-color="black" data-line="1. d4 e6 2. e4 d5 3. e5 c5 4. Nf3"></span>
+       </p>
+
+       <div data-ply='7'
+       data-shapes='d4 b8-c6 d8-b6'></div>
+
+       <p>
+       &nbsp;&nbsp;My usual setup against this is, putting as much pressure on d4 as possible with Nc6 c5 and Qb6.
+       </p>
+
+       <p>
+       &nbsp;&nbsp;Game continued, <span data-line="4... Nc6 5. c3 Qb6 6. Bd3"></span>
+       </p>
+       <div data-ply="11"></div>
+       
+       <h2> Missed Wins </h2>
+
+       <p>
+         &nbsp;&nbsp;Bd3 obstructs the queen's protection of d4 square. But still defends it tactically so I can't win a pawn on d4 <span data-game="main2" data-line="6... cxd4 7. cxd4 Nxd4 8. Nxd4 Qxd4 9. Bb5+"></span>, and I lose my queen.
+  So I play <span data-line="6... cxd4 7. cxd4 Bd7"></span> to threaten d4. He defends, <span data-line="8. Be3"></span>. I missed a hanging pawn, <!-- <span data-game="main2" data-variation="main 15" data-line="8... Qxb2"></span> -->. I thought, his light square bishop is short on squares on b1-h7 diagonal so I attack it, <span data-line="8... Nb4"></span> He just castles, so I take his bishop and go <span data-line="9. O-O Nxd3 10. Qxd3 Ne7"></span>. I missed a skewer of queen and the rook <!-- <span data-game="main3" data-variation="main 19" data-line="10... Bb5"></span> -->.
     </p>
 
-    <div data-fen='rnbqkbnr/pp3ppp/4p3/2ppP3/3P4/5N2/PPP2PPP/RNBQKB1R b KQkq - 1 4'
-         data-shapes='d4 b8-c6 d8-b6'></div>
+    <div data-ply="20"></div>
+
+    <h2> Charge! </h2>
 
     <p>
-      &nbsp;&nbsp;I played my usual setup against this, putting as much pressure on d4 as possible with Nc6 c5 and Qb6.
+      &nbsp;&nbsp;The game continues <span data-line="11. Nc3 Nc6 12. h4 Be7 13. h5"></span>. White is doing caveman attack, that is pushing pawns in front of his king to attack. I stop his h pawn and castle, he prepares to push his g pawn <span data-line="13... h6 14. Kh1 O-O 15. Rg1"></span>
     </p>
+
+    <div data-ply="29"></div>
+
+    <h2> Caveman Attack vs Counter Attack </h2>
+
+    <p>
+      &nbsp;&nbsp;At this point I know white is going g5, g6 to open up my king side. Also white is weaking his king side, especially the h1-a8 diagonal. So I think I should open up the center with f6, e5 and d4, and use my light square bishop on that diagonal. First I give white queen a kick then go <span data-line="15... Nb4 16. Qe2 f6"></span>. Both start their attacks <span data-line="17. g4 fxe5"></span>.
+    </p>
+
+    <h2> Unforeseen Consequences </h2>
+
+    <p>
+      &nbsp;&nbsp;<span data-line="18. Nxe5"></span> and suddenly white knight joins the attack, and my bishop is hanging.
+    </p>
+
+    <div data-ply="35"></div>
+
+    <p>
+      &nbsp;&nbsp;Best move here is <!-- <span data-game="main4 main" data-line="18... Be8"></span> --> controlling the knight jumps especially Ng6. But I wanted to keep the rooks connected, and I blunder <span data-line="18... Rd8"></span>. This loses an exchange <span data-line="19. g5 hxg5 20. Ng6"></span>, and it's +3 for white. Both rook and the bishop is attacked. If I move the rook, I get skewered <!-- <span data-game="main5 main" data-line="20... Rf7 21. Nxe7 Rxe7 22. Bxg5"></span> -->. I move the bishop and white takes my rook <span data-line="20... Bf6 21. Nxf8"></span>. This is a blunder and, it's slightly better for white.
+    </p>
+
+    <div data-ply="41"></div>
+
+    <h2> Slight recover and final blunder </h2>
+
+    <p>
+      Both regroup, and white gives up the d4 pawn <span data-line="21... Rxf8 22. Rg2 Nc6 23. Rag1 Nxd4"></span>. White makes a mistake <span data-line="24. Qg4"></span>, and it's -1.9. Black should protect his bishop on d7 and do <!-- <span data-game="main6 main" data-line="24... Rf7 25. Qd1 e5"></span> --> to keep it's advantage. I am thinking my knight is in a pin and I want to protect it with e5 without hanging my bishop, I thought white couldn't take my knight after <span data-line="24... Qd6"></span> but <span data-line="25. Bxd4"></span>. This is not bad for white, but I thought I lost my knight and I couldn't recapture I play <span data-line="25... e5"></span> meanwhile seeing white can go <span data-game="main7" data-line="26. Qg3"></span> so I resign.
+    </p>
+
+    <div data-ply="48"></div>
+
+    <h2>Final thoughts</h2>
+
+    <p>
+      Instead I could do <span data-game="main8" data-line="25... Bxd4"></span> since <span data-game="main8a main8" data-line="26. Qxd4 Rf4"></span> might lead to white losing his queen, with an equal position.
+    </p>
+
+    <p> &nbsp;&nbsp;Full game reference: </p>
+
+    <iframe src="https://lichess.org/embed/hCCWen8j/black?theme=pink&bg=dark"
+width=600 height=397 frameborder=0></iframe>
 
   </section>
 
