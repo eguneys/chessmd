@@ -1,7 +1,7 @@
 {
-  "name": "tetris",
+  "name": "chessmd",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/bundle_umd.js",
   "license": "MIT",
   "scripts": {
     "start": "webpack-dev-server --port=3000 --mode=development",

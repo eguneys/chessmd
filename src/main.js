@@ -5,6 +5,9 @@ import Situation from './situation';
 import { renderLine, renderFen, updateBounds, updateSvg } from './render';
 import { fTranslateAbs, fAddClass, fHide, fShow, div } from './dom';
 
+import { parseMdFull } from './md/parser';
+import { updatePreview } from './md/render';
+
 function isInViewport(bounds) {
   return bounds.top >= 0 &&
     bounds.left >= 0 &&
@@ -347,6 +350,12 @@ export function app(element, options) {
   let ctx = {
     element
   };
+
+  if (options.content) {
+    let model = parseMdFull(options.content);
+    updatePreview(model, element);
+  }
+
 
   let play = new Play(ctx);
 

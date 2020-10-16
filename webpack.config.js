@@ -102,10 +102,52 @@ const prodConfig = {
   ]
 };
 
+const prodUmdConfig = {
+  entry: [
+    path.resolve(__dirname, 'src') + '/boot.js'
+  ],
+  mode: 'production',
+  output: {
+    filename: 'bundle_umd.js',
+    libraryTarget: 'umd',
+  },
+  devtool: 'none',
+  target: 'web',
+  module: {
+    rules: [
+      {
+        test: /\.js?$/,
+        use: 'babel-loader',
+        exclude: path.resolve(__dirname, './node_modules/')
+      },{
+        test: /\.(jpe?g|png|gif|svg|json)$/i,
+        loader: 'file-loader',
+        options: {
+          name: '[path][name].[ext]'
+        }
+      },
+      {
+        test: /\.(frag?g|vert)$/i,
+        use: 'raw-loader'
+      },
+      {
+        test: /\.css?$/,
+        use: [{loader: MiniCssExtractPlugin.loader, options: {}}, 'css-loader'],
+        exclude: path.resolve(__dirname, './node_modules/')
+      }
+    ]
+  },
+  plugins: [
+    new MiniCssExtractPlugin({}),
+    new CopyPlugin([
+    ])
+  ]
+};
+
 module.exports = (env) => {
   switch (env) {
   case 'production':
-    return prodConfig;
+    return [prodConfig, prodUmdConfig];
   default:
     return devConfig;
   }

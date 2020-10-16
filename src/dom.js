@@ -25,6 +25,10 @@ export function tag(nameklass, children = [], fStyle) {
 
 export const div = (klass, children, fStyle) => tag('div' + klass, children, fStyle);
 
+export const textNode = (content) => {
+  return document.createTextNode(content);
+};
+
 export const updateChildren = (el, fupdate) => {
   el = el.firstChild;
 
@@ -44,6 +48,14 @@ export const fAddClass = (klass) => {
   return el => {
     klass.split('.').forEach(_ => {
       el.classList.add(_);
+    });
+  };
+};
+
+export const fAttribute = attributes => {
+  return el => {
+    Object.keys(attributes).forEach(_ => {
+      el.setAttribute(_, attributes[_]);
     });
   };
 };
