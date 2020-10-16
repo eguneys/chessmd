@@ -60,6 +60,10 @@
          padding-bottom: 60vmin;
      }
 
+     img {
+         width: 60vmin;
+     }
+
      [data-fen],
      [data-ply] {
          position: relative;
@@ -69,6 +73,25 @@
     </style>
 <link href="main.css" rel="stylesheet"><script type="text/javascript" src="bundle.js"></script></head>
 <body>
+
+  <section id="chessmd2">
+
+    <a href="#"><h1> Classical Old Benoni #1 </h1></a>
+    <date>September 2020</date>
+    • 30+0 Rated • White vs <a href="https://lichess.org/@/learningabc">@learningabc (1868) </a>
+
+    <p>
+      <span data-color="white" data-line="1. d4 c5 2. e3 d5 3. Nf3 e6 4. Be2 Nf6 5. O-O a6"></span>. Engine suggestion is <span data-game="main2 main" data-line="2. d5"></span>
+    </p>
+
+    <div data-ply="10"></div>
+
+    <p> Full game reference: </p>
+
+    <a href="https://lichess.org/tBBd0Uws/white"><img src="https://lichess1.org/game/export/gif/tBBd0Uws.gif"/></a>
+
+  </section>
+
   <section id="chessmd">
 
        <h1> 15 minute of French Defense Advanced </h1>
@@ -150,6 +173,7 @@ width=600 height=397 frameborder=0></iframe>
   <script>
 
    Tetris(document.getElementById("chessmd"), {});
+   Tetris(document.getElementById("chessmd2"), {});
    
   </script>
 
