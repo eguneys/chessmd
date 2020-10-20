@@ -1,6 +1,6 @@
 {
   "name": "chessmd",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "dist/bundle_umd.js",
   "license": "MIT",
   "scripts": {

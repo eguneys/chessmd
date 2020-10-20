@@ -5,8 +5,7 @@ import Situation from './situation';
 import { renderLine, renderFen, updateBounds, updateSvg } from './render';
 import { fTranslateAbs, fAddClass, fHide, fShow, div } from './dom';
 
-import { parseMdFull } from './md/parser';
-import { updatePreview } from './md/render';
+import { parseMdFull, updatePreview } from './md';
 
 function isInViewport(bounds) {
   return bounds.top >= 0 &&
