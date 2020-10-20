@@ -31,7 +31,13 @@ function createParagraph(content) {
   return tag(`p`, content.map(({ type, content }) => {
     switch (type) {
     case Code:
-      return tag('span', [], fAttribute({ 'data-line': content }));
+      let dataGame = content.variation ? `${content.variation} ${content.base}` : null;
+      let attribute = { 'data-line': content.line };
+
+      if (dataGame) {
+        attribute['data-game'] = dataGame;
+      }
+      return tag('span', [], fAttribute(attribute));
       break;
     case Text:
       return textNode(content);

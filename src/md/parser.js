@@ -6,7 +6,16 @@ export const Code = 1,
 Text = 2;
 
 export function parseCode(code) {
-  return code.substring(1, code.length - 1);
+  const variationRegex = /^([a-zA-Z][^\s]*) ([a-zA-Z][^\s]*) (.*)/;
+  let match;
+
+  code = code.substring(1, code.length - 1);
+
+  if ((match = code.match(variationRegex))) {
+    let [_, variation, base, line] = match;
+    return { variation, base, line };
+  }
+  return { line: code };
 }
 
 export function parseParagraph(para) {
