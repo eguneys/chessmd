@@ -275,7 +275,6 @@ export function History(play, ctx) {
 
   function playMoves(moves, situation) {
     return moves.map(({ ply, move }) => {
-
       let value = situation ? move.move(situation).flatMap(_ => {
         situation = _.situationAfter();
         return valid(_);

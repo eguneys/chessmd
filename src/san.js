@@ -57,23 +57,12 @@ export function Castle(side, san) {
   this.side = side;
 
 
-  this.move = situation => {
-
-    let kingPos = toValid(situation.board.kingPosOf(situation.color), "No king found");
-
-    if (kingPos.invalid) {
-      return kingPos;
-    }
-
-    let actor = toValid(situation.board.actorAt(kingPos.value.key), "No Actor found");
-
-    if (actor.invalid) {
-      return actor;
-    }
-
-    let move = toValid(actor.value.castleOn(side)[0], "Cannot castle");
-
-    return move;
-  };
-
+  this.move = situation =>
+    toValid(situation.board.kingPosOf(situation.color), "No king found")
+      .flatMap(kingPos =>
+        toValid(situation.board.actorAt(kingPos.key), "No Actor found")
+          .flatMap(actor =>
+            toValid(actor.castleOn(side)[0], "Cannot castle")
+          )
+      );
 }

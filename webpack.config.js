@@ -1,3 +1,4 @@
+const pkg = require('./package.json');
 var path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -51,7 +52,10 @@ const devConfig = {
       template: 'src/index.html',
       inject: 'head'
     }),
-    new webpack.HotModuleReplacementPlugin({})
+    new webpack.HotModuleReplacementPlugin({}),
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify(pkg.version)
+    })
   ]
 };
 
@@ -98,7 +102,10 @@ const prodConfig = {
     }),
     new MiniCssExtractPlugin({}),
     new CopyPlugin([
-    ])
+    ]),
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify(pkg.version)
+    })
   ]
 };
 
@@ -140,7 +147,10 @@ const prodUmdConfig = {
   plugins: [
     new MiniCssExtractPlugin({}),
     new CopyPlugin([
-    ])
+    ]),
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify(pkg.version)
+    })
   ]
 };
 
