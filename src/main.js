@@ -124,6 +124,7 @@ export function MoveLine(play, ctx, el) {
   this.color = sColor;
 
   let line = parseLine(sLine);
+
   this.flat = line.flat()
     .flatMap(_ => _ ? _.copyMap(_ => [_])
              .getOrElse(_ => []): 
@@ -220,6 +221,10 @@ export function History(play, ctx) {
     }));
 
     return objMap(variationMoves, (_, moves) => {
+      if (moves.length === 0) {
+        return {};
+      };
+
       let situation = situationFor(base, moves[0].ply - 1);
       return { [_]:  playMoves(moves, situation) };
     });

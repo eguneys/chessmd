@@ -70,12 +70,15 @@ function Validation(invalid, valid) {
       finvalid(this.invalid);
   };
 
-
-  this.map = (fvalid) => {
+  this.rawMap = (fvalid) => {
     if (this.valid) {
       makeValid(fvalid(valid));
     }
     return this;
+  };
+
+  this.map = (fvalid) => {
+    return this.copy().rawMap(fvalid);
   };
 
   this.check = (ftest, _invalid) => {
