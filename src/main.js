@@ -123,6 +123,11 @@ export function MoveLine(play, ctx, el) {
   this.base = _game[1];
   this.color = sColor;
 
+  if (this.game === this.base) {
+    console.warn(`Same name for variation ${this.game}`);
+    this.base += "X";
+  }
+
   let line = parseLine(sLine);
 
   this.flat = line.flat()
