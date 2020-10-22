@@ -1,7 +1,9 @@
 import { objFilter, objForeach, objMap, groupToMap } from './outil';
+import { valid, invalid } from './valid';
 import * as util from './util';
 import { parseLine } from './parser';
 import Situation from './situation';
+import { renderLineModel } from './rendermodel';
 import { renderLine, renderFen, updateBounds, updateSvg } from './render';
 import { fTranslateAbs, fAddClass, fHide, fShow, div } from './dom';
 
@@ -41,7 +43,8 @@ export function Ply(play, ctx, el) {
       pieces,
       lastMove,
       move,
-      bounds;
+      bounds,
+      error;
 
   this.el = el;
   this.bounds = () => bounds;
@@ -55,11 +58,18 @@ export function Ply(play, ctx, el) {
     lastMove = [];
 
     move = history.moveFor(game, ply);
+
     if (move) {
-      let situation = move.value.situationAfter();
-      pieces = situation.board.pieces;
-      lastMove.push(move.value.orig.key);
-      lastMove.push(move.value.dest.key);
+      move.value.fold(_ => {
+        let situation = _.situationAfter();
+        pieces = situation.board.pieces;
+        lastMove.push(_.orig.key);
+        lastMove.push(_.dest.key);
+      }, _ => {
+        error = _;
+      });
+    } else {
+      error = `No move found ${game}:${ply}`;
     }
 
     color = color || history.colorFor(game);
@@ -115,7 +125,9 @@ export function MoveLine(play, ctx, el) {
 
   let line = parseLine(sLine);
   this.flat = line.flat()
-    .flatMap(_ => _ ? [_]:[]);
+    .flatMap(_ => _ ? _.copyMap(_ => [_])
+             .getOrElse(_ => []): 
+             []);
 
   let fHover = (ply, el) => {
     play.show(this.game, ply, el);
@@ -127,11 +139,24 @@ export function MoveLine(play, ctx, el) {
 
   this.wrap = () => {
 
+    const plyMove = (ply) => {
+      let move = play.history.moveFor(this.game, ply);
+      if (!move) {
+        return invalid(`No move for ${this.game}`);
+      }
+      return move.value;
+    };
+
     let depth = play.history.lineDepthFor(this.game);
 
     let fStyle = fAddClass(`depth${depth}`);
 
-    let children = renderLine(line, fHover, fOut);
+    let lineModel = line.map(([mw, mb]) =>
+      [mw && renderLineModel(mw, plyMove),
+       mb && renderLineModel(mb, plyMove)]
+    );
+
+    let children = renderLine(lineModel, fHover, fOut);
 
     children.forEach(_ => el.appendChild(_));
     fStyle(el);
@@ -212,6 +237,11 @@ export function History(play, ctx) {
   this.moveFor = moveFor;
 
   function moveFor(base, ply) {
+    if (!movesByGame[base]) {
+      console.warn(`No variation found for ${base}`);
+      return null;
+    }
+
     let oMove = movesByGame[base]
         .find(_ => _.ply === ply);
 
@@ -227,28 +257,33 @@ export function History(play, ctx) {
       return Situation.apply();
     }
 
-    let oMove = moveFor(base, ply);
+    let move = moveFor(base, ply);
 
-    return oMove.value.situationAfter();
+    if (move) {
+      return move.value.map(_ =>
+        _.situationAfter()
+      ).getOrElse(Situation.apply);
+    } else {
+      return Situation.apply();
+    }
   }
 
   function playMoves(moves, situation) {
     return moves.map(({ ply, move }) => {
-      if (!situation) {
-        return { ply, value: null };
-      }
-      let { invalid, value } = move.move(situation);
-      if (invalid) {
-        console.warn(invalid);
+
+      let value = situation ? move.move(situation).flatMap(_ => {
+        situation = _.situationAfter();
+        return valid(_);
+      }, _ => {
         situation = null;
-        return { ply, value: invalid };
-      }
-      situation = value.situationAfter();
+        return invalid(_);
+      }) : invalid('No situation.');
+
       return {
         ply,
         value
       };
-    }).filter(_ => _);
+    });
   };
   
 }

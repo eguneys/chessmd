@@ -10,7 +10,7 @@ let { ranks,
 
 let { svg, renderMarker, renderShape } = SVG;
 
-let { div, tag, fTranslateAbs, fListen, updateChildren } = dom;
+let { div, tag, fAttribute, fTranslateAbs, fListen, updateChildren } = dom;
 
 export function renderLine(line, fHover, fOut) {
   let onHover = ply => {
@@ -27,18 +27,25 @@ export function renderLine(line, fHover, fOut) {
     let onHoverWhite = mwhite && onHover(mwhite.ply),
         onHoverBlack = mblack && onHover(mblack.ply);
 
+    let fAttributeWhite = mwhite && fAttribute({ title: mwhite.err, 'data-err': mwhite.err });
+    let fAttributeBlack = mblack && fAttribute({ title: mblack.err, 'data-err': mblack.err });
+
     return mwhite && mblack ?
       [
-        tag('strong.moven', (mwhite.ply + 1) / 2 + '. '),
-        tag('span.movem', mwhite.move.san + ' ', onHoverWhite),
-        tag('span.movem', mblack.move.san + ' ', onHoverBlack),
+        tag('strong.moven', mwhite.plyStrWhite),
+        tag('span.movem', mwhite.san + ' ', [fAttributeWhite,
+                                             onHoverWhite]),
+        tag('span.movem', mblack.san + ' ', [fAttributeBlack,
+                                             onHoverBlack]),
       ]
       : mwhite ? [
-        tag('strong.moven', (mwhite.ply + 1) / 2 + '. '),
-        tag('span.movem', mwhite.move.san + ' ', onHoverWhite)
+        tag('strong.moven', mwhite.plyStrWhite),
+        tag('span.movem', mwhite.san + ' ', [fAttributeWhite,
+                                             onHoverWhite])
       ] : [
-        tag('strong.moven', mblack.ply / 2 + '... '),
-        tag('span.movem', mblack.move.san + ' ', onHoverBlack),
+        tag('strong.moven', mblack.plyStrBlack),
+        tag('span.movem', mblack.san + ' ', [fAttributeBlack,
+                                             onHoverBlack]),
       ];
   });
 

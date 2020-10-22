@@ -17,7 +17,11 @@ export function tag(nameklass, children = [], fStyle) {
   }
 
   if (fStyle) {
-    fStyle(el);
+    if (fStyle.forEach) {
+      fStyle.forEach(_ => _(el));
+    } else {
+      fStyle(el);
+    }
   }
 
   return el;
@@ -55,8 +59,11 @@ export const fAddClass = (klass) => {
 export const fAttribute = attributes => {
   return el => {
     Object.keys(attributes).forEach(_ => {
-      el.setAttribute(_, attributes[_]);
+      if (attributes[_]) {
+        el.setAttribute(_, attributes[_]);
+      }
     });
+    return el;
   };
 };
 

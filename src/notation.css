@@ -12,6 +12,10 @@ span[data-line] span.movem:hover {
   cursor: pointer;
 }
 
+span[data-err] {
+  color: #ff2222;
+}
+
 span.depth0 {
 }
 

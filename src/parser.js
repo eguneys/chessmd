@@ -17,7 +17,8 @@ export function parseSan(san) {
   let match = san.match(moveRegex);
 
   if (!match) {
-    return invalid(`Couldn't parse ${san}`);
+    return invalid({ err: `Couldn't parse`,
+                     san });
   }
 
   let [_, role, file, rank, capture, pos, prom, check, mate] = match;
@@ -36,7 +37,8 @@ export function parseSan(san) {
     ));
   }
 
-  return invalid(`Invalid move ${san}`);
+  return invalid({ err: `Invalid move`, 
+                   san });
 }
 
 export function parseLine(line) {
@@ -57,19 +59,12 @@ export function parseLine(line) {
       oneMove = [];
     } else {
 
-      let { value, 
-            invalid } = parseSan(next);
+      let move = parseSan(next).map(_ => ({
+        ply: ply++,
+        move: _
+      }));
 
-      if (invalid) {
-        console.warn(invalid);
-        oneMove.push(null);
-      } else {
-        oneMove.push({
-          ply,
-          move: value
-        });
-        ply++;
-      }
+      oneMove.push(move);
 
       if (oneMove.length === 2) {
         _moves.push(oneMove);
