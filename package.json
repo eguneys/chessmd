@@ -1,6 +1,6 @@
 {
   "name": "chessmd",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "dist/bundle_umd.js",
   "license": "MIT",
   "scripts": {
@@ -9,7 +9,8 @@
     "build-dev": "webpack --config webpack.config.js",
     "zip": "cd dist && zip dist.zip * -r && mv dist.zip ..",
     "dist": "rm dist -rf && yarn run build && yarn run zip",
-    "pieces": "node pieces assets/pieces assets/pixel.css"
+    "pieces": "node pieces assets/pieces assets/pixel.css",
+    "prepublish": "yarn dist"
   },
   "devDependencies": {
     "@babel/core": "^7.5.4",
