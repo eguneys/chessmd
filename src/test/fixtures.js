@@ -1,4 +1,4 @@
-let indianGame = `
+export const indianGame = `
 # Quite Opening
 
 I started as white, <1. d4 Nf6 2. e3 g6 3. Nf3 Bg7 4. Be2 d6 5. O-O O-O 6. c4 c6 7. Nc3 Nbd7 8. Qa4 e5> . Black didn't challenge the center early, I had a comfortable opening, and want to expand on the queen side, <9. b4> this is inaccurate because black can challenge the b4 pawn <main2 main 9... exd4 10. Nxd4 a5> .
@@ -23,7 +23,3 @@ Black is slightly improving it's position even though it doesn't look like it. R
 
 =60
 `;
-
-export default {
-  indianGame
-};

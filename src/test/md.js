@@ -13,68 +13,91 @@ function mdhtml(code) {
   return $_;
 }
 
-export default function() {
+function genCode(len) {
+  let chars = "<>abcdefgh.NBQRKO-12345678 ".split('');
 
+  function nextChar() {
+    return chars[Math.floor(Math.random()*chars.length)];
+  };
+
+  let res = "";
+
+  for (let i = 0; i < len; i++) {
+    res += nextChar();
+  }
+
+  return res;
+}
+
+function repeat(code, n) {
+  let res = "";
+  while (--n) {
+    res += code;
+  }
+  return res;
+}
+
+function corrupt(code) {
+  let chars = "<>abcdefgh.NBQRKO-12345678 ".split('');
+
+  function nextChar() {
+    return chars[Math.floor(Math.random()*chars.length)];
+  };
+
+  let res = "";
+  for (let i = 0; i < code.length; i++) {
+    res += Math.random() < 0.8 ? code[i] : nextChar();
+  }
+  return res;
+}
+
+export default function() {
   let $test = document.getElementById('mdtest');
+
+  // simple($test);
+
+  more($test);
+
+}
+
+function more($test) {
+
+  function work(code) {
+    $test.appendChild(mdhtml(code));
+  }
+  
+  work(`
+No move line Nf3 <Nf3>
+`);
+
+  work(corrupt(repeat(`<1. Nf3 Nf6 2. Ba5 Bg4 3. e4> <4... a6> <5... Qa7> <7... a8>`, 100)));
+
+}
+
+function simple($test) {
+
   let code;
 
   code = `
-
-# This is a header
-This is a paragraph. Embed chess notation like <1. e3 e5 2. Nf3 Nf6 3.d3> 
-Continue paragraph. Continue from black's move <3... d6 4. a3 a6> 
-
-To embed a chess board use ply number like:
+<1. e3 e6 2. Nf3 Nf6 3. d3> 
+<3... d6 4. a3 a6> 
 =8
+<main2 main 3. d4 d5 4. a3 a6>
+<main3 main 3. d4> .
 
-Embed variation lines <main2 main 3. d4 d5 4. a3 a6> . "main2" is variation name and "main" is the parent line.
-
-Make sure to put a space at beginning and end of lines <main3 main 3. d4> .
-
-Happy blogging
 `;
   $test.appendChild(mdhtml(code));
 
   code = `
-# This is a header
-This is a paragraph. Embed chess notation like <1. e3 e6 2. Nf3 Nf6 3. d3> 
-Continue paragraph. Continue from black's move <3... d6 4. a3 a6> 
-
-To embed a chess board use ply number like:
 =8
-
-Embed variation lines <main2 main 3. d4 d5 4. a3 a6> . "main2" is variation name and "main" is the parent line.
-
-Make sure to put a space at beginning and end of lines <main3 main 3. d4> .
-
-Happy blogging
+<main2 main 3. d4 d5 4. a3 a6>
+<main3 main 3. d4> .
 `;
   $test.appendChild(mdhtml(code));
 
-  code = `
-To embed a chess board use ply number like:
+  code = `<1. e3 e6 2. Nf3 Nf6 3. d3> <4. a3 a6>
 =8
-
-Embed variation lines <main2 main 3. d4 d5 4. a3 a6> . "main2" is variation name and "main" is the parent line.
-
-Make sure to put a space at beginning and end of lines <main3 main 3. d4> .
-
-Happy blogging
-`;
-  $test.appendChild(mdhtml(code));
-
-  code = `
-# This is a header
-
-This is a paragraph. Add chess notation like <1. e3 e6 2. Nf3 Nf6 3. d3> Continue from black's move <4. a3 a6>
-
-To start a new paragraph add two new lines.
-
-To embed a chess board use ply number like:
-
-=8
-`;
-  
+`;  
   $test.appendChild(mdhtml(code));
 
   code = `#Invalid Variation\n 1.Nf3 Nf5 <1. Nf3 Nf5 2. d3> variation <main2 main 2. d4 d5 3. Nd3>`;

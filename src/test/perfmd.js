@@ -1,4 +1,4 @@
-import fixtures from './fixtures';
+import * as fixtures from './fixtures';
 import { app as ChessMd } from '../main';
 
 export default function() {

@@ -59,6 +59,10 @@ export function parseLine(line) {
       oneMove = [];
     } else {
 
+      if (!oneMove) {
+        return;
+      }
+
       let move = parseSan(next).map(_ => ({
         ply: ply++,
         move: _
@@ -73,7 +77,7 @@ export function parseLine(line) {
     }
   });
 
-  if (oneMove.length === 1) {
+  if (oneMove && oneMove.length === 1) {
     _moves.push(oneMove);
   }
   
