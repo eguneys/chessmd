@@ -353,7 +353,7 @@ export function app(element, options) {
   if (options.content) {
     let model = parseMdFull(options.content);
     updatePreview(model, element);
-  }
+   }
 
 
   let play = new Play(ctx);
