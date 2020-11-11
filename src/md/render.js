@@ -50,7 +50,11 @@ function createParagraph(content) {
 }
 
 function createPly(content) {
-  return tag('div', [], fAttribute({ 'data-ply': content }));
+  let [ply, base] = content.split(' ');
+
+  let attr = { 'data-ply': ply };
+  if (base) attr['data-game'] = base;
+  return tag('div', [], fAttribute(attr));
 }
 
 function createPTag(type, content) {

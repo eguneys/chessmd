@@ -11,5 +11,7 @@ module.exports.version = __VERSION__;
 
 const test = require('./test').default;
 setTimeout(() => {
-  test();
+  // test();
 });
+
+module.exports.fixtures = require('./fixtures').default;

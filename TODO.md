@@ -1,13 +1,13 @@
 - [x] Variation Line
 - [x] Last move highlight
 - [x] Notation Visualizer
+- [x] Error Indicator
 - [ ] Unnamed Variation
 - [ ] Inline shape
-- [ ] Evaluation Gauge
 - [ ] Move Annotation
-- [ ] Error Indicator
-- [ ] Optimize Rendering
-  - [ ] Throttle
+- [ ] Evaluation Gauge
+- [+] Optimize Rendering
+  - [x] Throttle
 ~- [ ] Defer move generation~
 
 ### Must Have

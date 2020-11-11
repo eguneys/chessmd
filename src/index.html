@@ -74,6 +74,8 @@
 </head>
 <body>
 
+  <section id="chessmd4"></section>
+
   <section id="mdtest"></section>
 
   <section id="chessmd3"></section>
@@ -177,6 +179,12 @@ width=600 height=397 frameborder=0></iframe>
   <script>
 
    function init() {
+
+     Tetris(document.getElementById('chessmd4'), {
+       content: Tetris.fixtures.experiment
+     });
+
+
      console.log(Tetris.version);
      Tetris(document.getElementById("chessmd3"), {
        content: `
